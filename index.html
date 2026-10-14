@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  PADEL N ONE — Complexe padel 6 pistes + bar « La Bulle »
+  1 rue Eugène Freyssinet, 51470 Saint-Memmie (Marne)
+  Tél. 06 30 29 13 07 · Instagram @padel_n_one
+  SAS Padel N One — capital 95 000 € — Président : Franck Bazilio
+  ============================================================
+
+  VIDÉO HERO : déposer la vidéo à côté de ce fichier sous le nom
+  « padel-n-one.mp4 » (idéalement H.264, 1080p, < 8 Mo, 10-20 s, sans son).
+  Si le fichier est absent, la piste 3D animée (canvas) prend le relais.
+  INTRO : jouée une fois par session (sessionStorage « pn1_intro »).
+
+  À VALIDER AVEC LE CLUB (hypothèses actuelles, toutes centralisées
+  dans l'objet CONFIG du JavaScript en bas de page) :
+  - Tarifs par piste (CONFIG.prices) et heures pleines (CONFIG.isPeak)
+  - Horaires d'ouverture (CONFIG.open / CONFIG.close) : 8h-23h 7j/7
+  - Pistes couvertes ou extérieures (CONFIG.courts[].type)
+  - Horaires du bar La Bulle, offres coaching / entreprises
+  - SIREN et hébergeur dans les mentions légales
+  - Le module de réservation est une DÉMONSTRATION (stockage local).
+    Brancher Playtomic / BalleJaune / Stripe avant mise en ligne.
+  ============================================================
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Padel N One — 6 pistes de padel & bar à Saint-Memmie, Châlons-en-Champagne</title>
+<meta name="description" content="Padel N One, le nouveau complexe de padel de Saint-Memmie (Châlons-en-Champagne) : 6 pistes, bar La Bulle, cours, tournois et événements entreprises. Réservez votre piste en ligne 24h/24. 06 30 29 13 07." />
+<meta name="keywords" content="padel Châlons-en-Champagne, padel Saint-Memmie, padel Marne, réserver padel 51, club padel Châlons, Padel N One" />
+<meta name="theme-color" content="#0A0A0B" />
+<link rel="canonical" href="https://www.padelnone.fr/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="fr_FR" />
+<meta property="og:site_name" content="Padel N One" />
+<meta property="og:title" content="Padel N One — 6 pistes de padel & bar à Saint-Memmie" />
+<meta property="og:description" content="Le nouveau temple du padel à Châlons-en-Champagne. 6 pistes, un bar, une communauté. Réservez en ligne." />
+<meta property="og:url" content="https://www.padelnone.fr/" />
+<meta property="og:image" content="https://www.padelnone.fr/og-image.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A0A0B'/%3E%3Ccircle cx='32' cy='32' r='17' fill='%23E8FF4A'/%3E%3Cpath d='M17 26c8 4 22 4 30 0M17 38c8-4 22-4 30 0' stroke='%230A0A0B' stroke-width='3' fill='none'/%3E%3C/svg%3E" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsActivityLocation",
+  "name": "Padel N One",
+  "description": "Complexe de padel de 6 pistes avec bar à Saint-Memmie, aux portes de Châlons-en-Champagne (Marne).",
+  "url": "https://www.padelnone.fr/",
+  "telephone": "+33630291307",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "1 rue Eugène Freyssinet",
+    "addressLocality": "Saint-Memmie",
+    "postalCode": "51470",
+    "addressRegion": "Grand Est",
+    "addressCountry": "FR"
+  },
+  "openingHours": "Mo-Su 08:00-23:00",
+  "priceRange": "€€",
+  "amenityFeature": [
+    {"@type":"LocationFeatureSpecification","name":"6 pistes de padel","value":true},
+    {"@type":"LocationFeatureSpecification","name":"Bar","value":true},
+    {"@type":"LocationFeatureSpecification","name":"Location de raquettes","value":true}
+  ],
+  "sameAs": ["https://www.instagram.com/padel_n_one/"]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0A0A0B;
+    --ink-2:#121214;
+    --ink-3:#1A1A1D;
+    --chalk:#F2EEE4;
+    --chalk-2:#E6E0D2;
+    --mute:#8E8A80;
+    --ball:#E8FF4A;      /* jaune balle — signature */
+    --court:#2448FF;     /* bleu piste */
+    --bubble:#E9D3A2;    /* champagne — bar La Bulle */
+    --line:rgba(242,238,228,.12);
+    --line-dark:rgba(10,10,11,.12);
+    --display:'Big Shoulders Display',Impact,sans-serif;
+    --body:'Manrope',system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --wrap:1240px;
+    --r:22px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{overflow-x:clip;scroll-behavior:smooth;-webkit-font-smoothing:antialiased;scroll-padding-top:80px}
+  body{background:var(--ink);color:var(--chalk);font-family:var(--body);line-height:1.6;overflow-x:hidden}
+  body.lock{overflow:hidden}
+  a{color:inherit;text-decoration:none}
+  img,video,svg{display:block;max-width:100%}
+  button{font:inherit;color:inherit;touch-action:manipulation}
+  a,button{-webkit-tap-highlight-color:transparent}
+  ::selection{background:var(--ball);color:var(--ink)}
+  .wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 24px}
+  .mono{font-family:var(--mono)}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:12px}
+  .kicker::before{content:"";width:28px;height:1px;background:currentColor}
+  .h-xl{font-family:var(--display);font-weight:900;text-transform:uppercase;line-height:.86;letter-spacing:-.005em}
+  .h-l{font-family:var(--display);font-weight:800;text-transform:uppercase;line-height:.9;font-size:clamp(2.6rem,6.2vw,5.4rem)}
+  .lead{font-size:clamp(1rem,1.3vw,1.15rem);color:var(--mute);max-width:56ch}
+  .ball-c{color:var(--ball)}
+  section{position:relative}
+
+  /* ---------- boutons ---------- */
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:100px;border:none;cursor:pointer;
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;white-space:nowrap;
+    transition:transform .25s,background .25s,color .25s,box-shadow .25s}
+  @media (hover:hover){.btn:hover{transform:translateY(-2px)}}
+  .btn-ball{background:var(--ball);color:var(--ink);box-shadow:0 14px 40px -14px rgba(232,255,74,.8)}
+  .btn-ball:hover{box-shadow:0 18px 50px -12px rgba(232,255,74,.95)}
+  .btn-line{background:transparent;color:var(--chalk);box-shadow:inset 0 0 0 1px var(--line)}
+  .btn-line:hover{box-shadow:inset 0 0 0 1px var(--chalk)}
+  .btn-ink{background:var(--ink);color:var(--chalk)}
+  .btn .arr{transition:transform .25s}
+  .btn:hover .arr{transform:translateX(4px)}
+
+  /* ---------- header ---------- */
+  header{position:fixed;inset:0 0 auto 0;z-index:60;transition:background .35s,box-shadow .35s}
+  header::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0;background:rgba(10,10,11,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line);transition:opacity .35s}
+  header.solid::before{opacity:1}
+  .nav{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand svg{height:34px;width:auto}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a:not(.btn){font-size:14px;font-weight:500;color:rgba(242,238,228,.75);transition:color .2s}
+  .nav-links a:not(.btn):hover{color:var(--ball)}
+  .acct{display:none;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:100px;padding:7px 14px 7px 7px;cursor:pointer;font-size:13px}
+  .acct.on{display:inline-flex}
+  .acct .av{width:26px;height:26px;border-radius:50%;background:var(--ball);color:var(--ink);display:grid;place-items:center;font-weight:700;font-size:12px}
+  .burger{display:none;background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.16em}
+
+  /* ---------- hero ---------- */
+  .hero{min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;padding:130px 0 56px}
+  .hero-media{position:absolute;inset:0;z-index:0;background:var(--ink)}
+  .hero-media video{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s}
+  .hero-media video.ready{opacity:1}
+  .hero-fallback{position:absolute;inset:0;overflow:hidden}
+  .hero-fallback canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.78}
+  @media (max-width:620px){.hero-fallback canvas{opacity:.55}}
+  .hero-shade{position:absolute;inset:0;z-index:1;background:
+    linear-gradient(180deg,rgba(10,10,11,.55) 0%,rgba(10,10,11,.1) 35%,rgba(10,10,11,.55) 70%,var(--ink) 100%),
+    radial-gradient(90% 70% at 20% 90%,rgba(10,10,11,.7),transparent 70%)}
+  .hero .wrap{position:relative;z-index:2}
+  .status{display:inline-flex;align-items:center;gap:10px;padding:8px 16px 8px 12px;border-radius:100px;background:rgba(232,255,74,.12);
+    box-shadow:inset 0 0 0 1px rgba(232,255,74,.45);font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ball)}
+  .status i{width:8px;height:8px;border-radius:50%;background:var(--ball);animation:ping 1.8s infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(232,255,74,.6)}80%{box-shadow:0 0 0 10px rgba(232,255,74,0)}100%{box-shadow:0 0 0 0 rgba(232,255,74,0)}}
+  .hero h1{font-size:clamp(4.4rem,15vw,13.5rem);margin:22px 0 0}
+  .hero h1 .o{display:inline-block;width:.74em;height:.74em;border-radius:50%;background:var(--ball);vertical-align:-.02em;position:relative;margin:0 .02em}
+  .hero h1 .o::before,.hero h1 .o::after{content:"";position:absolute;left:8%;right:8%;height:42%;border:.045em solid var(--ink);border-radius:50%}
+  .hero h1 .o::before{top:-14%;border-top:none;border-left:none;border-right:none}
+  .hero h1 .o::after{bottom:-14%;border-bottom:none;border-left:none;border-right:none}
+  .hero-row{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:end;margin-top:26px}
+  .hero-row p{font-size:clamp(1.05rem,1.5vw,1.3rem);color:rgba(242,238,228,.85);max-width:44ch}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+  .hero-meta{display:flex;gap:30px;flex-wrap:wrap;margin-top:44px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:rgba(242,238,228,.7)}
+  .hero-meta b{color:var(--chalk);font-weight:600}
+  .sound{position:absolute;right:24px;bottom:24px;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(10,10,11,.5);cursor:pointer;display:none;place-items:center}
+  .sound.on{display:grid}
+
+  /* ---------- marquee ---------- */
+  .marquee{background:var(--ball);color:var(--ink);overflow:hidden;padding:16px 0;transform:rotate(-1.2deg);margin:10px -2vw 0;width:104vw}
+  .marquee .t{display:inline-flex;white-space:nowrap;animation:mq 30s linear infinite;font-family:var(--display);font-weight:900;font-size:clamp(1.6rem,3vw,2.6rem);text-transform:uppercase}
+  .marquee .t span{padding:0 26px;display:inline-flex;align-items:center;gap:26px}
+  .marquee .t span::after{content:"";width:14px;height:14px;border-radius:50%;background:var(--ink)}
+  @keyframes mq{to{transform:translateX(-50%)}}
+
+  /* ---------- sections ---------- */
+  .sec{padding:130px 0}
+  .sec-head{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;margin-bottom:60px}
+  .sec-head .lead{justify-self:end}
+
+  /* manifeste */
+  .manifest{background:var(--chalk);color:var(--ink)}
+  .manifest .kicker{color:#6b675e}
+  .manifest-text{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,5.4vw,4.8rem);line-height:.95;margin-top:28px;max-width:20ch}
+  .manifest-text em{font-style:normal;background:var(--ink);color:var(--ball);padding:0 .15em}
+  .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:80px;border-top:1px solid var(--line-dark)}
+  .pillar{padding:30px 26px 10px 0;border-right:1px solid var(--line-dark)}
+  .pillar:last-child{border-right:none}
+  .pillar:not(:first-child){padding-left:26px}
+  .pillar .n{font-family:var(--display);font-weight:900;font-size:4.2rem;line-height:1}
+  .pillar h3{font-size:1.05rem;font-weight:700;margin:10px 0 6px}
+  .pillar p{font-size:14.5px;color:#55524b}
+
+  /* pistes */
+  .courts-layout{display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:center}
+  .plan{position:relative;border-radius:var(--r);background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);padding:28px}
+  .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .pc{position:relative;aspect-ratio:1/2;border-radius:10px;background:var(--court);overflow:hidden;cursor:pointer;border:none;
+    transition:transform .3s,box-shadow .3s}
+  .pc:hover{transform:translateY(-4px);box-shadow:0 20px 40px -18px rgba(36,72,255,.9)}
+  .pc svg{position:absolute;inset:0;width:100%;height:100%}
+  .pc .lbl{position:absolute;left:10px;top:10px;font-family:var(--display);font-weight:900;font-size:2.2rem;line-height:1;color:var(--chalk)}
+  .pc .st{position:absolute;left:10px;bottom:10px;right:10px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    background:rgba(10,10,11,.6);border-radius:100px;padding:5px 9px;display:flex;align-items:center;gap:6px}
+  .pc .st i{width:6px;height:6px;border-radius:50%;background:var(--ball)}
+  .plan-foot{display:flex;justify-content:space-between;margin-top:18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+  .specs{display:grid;gap:0}
+  .spec{display:grid;grid-template-columns:60px 1fr;gap:18px;padding:22px 0;border-top:1px solid var(--line)}
+  .spec:last-child{border-bottom:1px solid var(--line)}
+  .spec .ic{width:44px;height:44px;border-radius:12px;background:var(--ink-3);display:grid;place-items:center;color:var(--ball)}
+  .spec .ic svg{width:22px;height:22px}
+  .spec h4{font-weight:700;font-size:1.05rem}
+  .spec p{color:var(--mute);font-size:14.5px;margin-top:2px}
+
+  /* bar */
+  .bar{background:linear-gradient(180deg,var(--ink) 0%,#141109 40%,#141109 60%,var(--ink) 100%);overflow:hidden}
+  .bar-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .bar h2 .bub{color:var(--bubble)}
+  .bubbles{position:relative;aspect-ratio:4/5;border-radius:28px;overflow:hidden;
+    background:radial-gradient(120% 80% at 50% 110%,rgba(233,211,162,.35),transparent 60%),linear-gradient(180deg,#1d1810,#0d0b07)}
+  .bubbles span{position:absolute;bottom:-20px;border-radius:50%;border:1px solid rgba(233,211,162,.55);background:rgba(233,211,162,.08);animation:rise linear infinite}
+  @keyframes rise{to{transform:translateY(-120vh) translateX(var(--dx,10px));opacity:0}}
+  .bubbles .glass{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+  .bubbles .glass b{display:block;font-family:var(--display);font-weight:900;font-size:clamp(4rem,9vw,7rem);line-height:.85;color:var(--bubble);text-transform:uppercase}
+  .bubbles .glass small{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(233,211,162,.7)}
+  .menu{margin-top:30px;display:grid;gap:0}
+  .menu div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:15px 0;border-top:1px dashed rgba(233,211,162,.25)}
+  .menu div span:first-child{font-weight:600}
+  .menu div span:first-child small{display:block;font-weight:400;color:var(--mute);font-size:13px}
+  .menu div span:last-child{font-family:var(--mono);color:var(--bubble);font-size:13px;text-align:right}
+
+  /* offres / tarifs */
+  .tarifs{background:var(--chalk);color:var(--ink)}
+  .tarifs .kicker{color:#6b675e}
+  .tarifs .lead{color:#55524b}
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .pcard{border-radius:var(--r);padding:32px 28px;background:#fff;box-shadow:inset 0 0 0 1px var(--line-dark);display:flex;flex-direction:column}
+  .pcard.hot{background:var(--ink);color:var(--chalk);box-shadow:none;position:relative}
+  .pcard.hot::before{content:"Le plus demandé";position:absolute;top:-12px;left:28px;background:var(--ball);color:var(--ink);font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:100px;font-weight:600}
+  .pcard .tag{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7a766c}
+  .pcard.hot .tag{color:var(--mute)}
+  .pcard h3{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:2.2rem;line-height:1;margin:10px 0 16px}
+  .pcard .big{font-family:var(--display);font-weight:900;font-size:4.4rem;line-height:.9}
+  .pcard .big small{font-family:var(--body);font-size:.9rem;font-weight:500;color:#7a766c;margin-left:6px}
+  .pcard.hot .big small{color:var(--mute)}
+  .pcard ul{list-style:none;margin:22px 0 26px;display:grid;gap:10px;font-size:14.5px}
+  .pcard li{display:flex;gap:10px;align-items:flex-start}
+  .pcard li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--court);margin-top:8px}
+  .pcard.hot li::before{background:var(--ball)}
+  .pcard .btn{margin-top:auto;justify-content:center}
+  .rates{margin-top:18px;border-radius:var(--r);background:#fff;box-shadow:inset 0 0 0 1px var(--line-dark);overflow:hidden}
+  .rates table{width:100%;border-collapse:collapse;font-size:15px}
+  .rates th,.rates td{padding:16px 22px;text-align:left;border-top:1px solid var(--line-dark)}
+  .rates thead th{border-top:none;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#7a766c;font-weight:500;background:var(--chalk-2)}
+  .rates td.p{font-family:var(--mono);font-weight:600}
+  .rates td.p small{color:#7a766c;font-weight:400}
+  .rates-note{font-size:13px;color:#6b675e;margin-top:14px}
+
+  /* programmes */
+  .progs{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .prog{border-radius:var(--r);padding:28px 24px 26px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);transition:background .3s,transform .3s;display:flex;flex-direction:column;min-height:300px}
+  @media (hover:hover){.prog:hover{background:var(--ink-3);transform:translateY(-4px)}}
+  .prog .num{font-family:var(--mono);font-size:12px;color:var(--ball)}
+  .prog h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:2rem;line-height:.95;margin:auto 0 10px}
+  .prog p{color:var(--mute);font-size:14.5px}
+
+  /* débuter */
+  .start{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  .steps{counter-reset:s;display:grid;gap:0}
+  .stepx{counter-increment:s;display:grid;grid-template-columns:70px 1fr;gap:16px;padding:22px 0;border-top:1px solid var(--line)}
+  .stepx::before{content:counter(s,decimal-leading-zero);font-family:var(--display);font-weight:900;font-size:2.6rem;line-height:1;color:var(--ball)}
+  .stepx h4{font-weight:700;font-size:1.08rem}
+  .stepx p{color:var(--mute);font-size:14.5px}
+  .faq details{border-top:1px solid var(--line);padding:20px 0}
+  .faq details:last-child{border-bottom:1px solid var(--line)}
+  .faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;font-weight:600;font-size:1.04rem}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";font-family:var(--mono);font-size:20px;color:var(--ball);transition:transform .25s;line-height:1}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq details p{color:var(--mute);font-size:14.5px;margin-top:10px;max-width:60ch}
+
+  /* infos */
+  .infos{display:grid;grid-template-columns:1fr 1.2fr;gap:18px}
+  .info-card{border-radius:var(--r);background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);padding:32px}
+  .info-card h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:2rem;margin-bottom:14px}
+  .rows div{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line);font-size:15px}
+  .rows div:first-child{border-top:none}
+  .rows span:first-child{color:var(--mute)}
+  .rows span:last-child{font-family:var(--mono);font-size:13.5px;text-align:right}
+  .map{border-radius:var(--r);overflow:hidden;min-height:420px;box-shadow:inset 0 0 0 1px var(--line);background:var(--ink-2)}
+  .map iframe{width:100%;height:100%;min-height:420px;border:0;filter:grayscale(1) invert(.92) contrast(.9)}
+  .contact-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+
+  /* CTA final */
+  .final{padding:150px 0;text-align:center;overflow:hidden}
+  .final h2{font-size:clamp(4rem,13vw,12rem)}
+  .final p{color:var(--mute);margin:18px auto 34px;max-width:46ch}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:60px 0 40px}
+  .foot{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:30px}
+  .foot p{color:var(--mute);font-size:14px;max-width:36ch;margin-top:14px}
+  .foot h5{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;font-weight:500}
+  .foot a,.foot span{display:block;font-size:14px;margin-bottom:8px;color:rgba(242,238,228,.82)}
+  .foot a:hover{color:var(--ball)}
+  .legal{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:50px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+  .legal button{background:none;border:none;cursor:pointer;color:var(--mute);text-decoration:underline;font-family:var(--mono);font-size:11.5px}
+
+  /* flottants */
+  .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:70;display:flex;gap:10px;align-items:center;transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .3s}
+  .fab.hide{transform:translateY(140%);opacity:0;pointer-events:none}
+  body.lock .fab{transform:translateY(140%);opacity:0;pointer-events:none}
+  .fab-call{width:54px;height:54px;border-radius:50%;background:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line),0 12px 30px -10px rgba(0,0,0,.7);display:grid;place-items:center;color:var(--ball)}
+  .fab .btn{display:none}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(30px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+  .rv.in{opacity:1;transform:none}
+  .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+
+  /* ============ MODALE RÉSERVATION ============ */
+  .mroot{position:fixed;inset:0;z-index:120;display:none}
+  .mroot.open{display:block}
+  .mbg{position:absolute;inset:0;background:rgba(5,5,6,.78);backdrop-filter:blur(8px)}
+  .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:auto;
+    background:var(--ink-2);border-radius:26px;box-shadow:inset 0 0 0 1px var(--line),0 60px 120px -30px #000;animation:pop .35s cubic-bezier(.2,.8,.2,1)}
+  @keyframes pop{from{opacity:0;transform:translate(-50%,-46%)}}
+  .mh{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:20px 24px;background:rgba(18,18,20,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .mh .t{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:1.7rem;line-height:1}
+  .mh .s{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-top:4px}
+  .x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;flex:none;display:grid;place-items:center}
+  .x:hover{border-color:var(--ball);color:var(--ball)}
+  .mb{padding:22px 24px 28px}
+  .prog-bar{display:flex;gap:6px;margin-bottom:22px}
+  .prog-bar i{flex:1;height:4px;border-radius:4px;background:var(--ink-3)}
+  .prog-bar i.on{background:var(--ball)}
+  .lbl2{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:18px 0 10px}
+  .lbl2:first-child{margin-top:0}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{flex:1;min-width:110px;padding:12px 10px;border-radius:14px;border:1px solid var(--line);background:none;cursor:pointer;text-align:center;transition:border-color .2s,background .2s}
+  .chip small{display:block;font-family:var(--mono);font-size:11px;color:var(--mute);margin-top:3px}
+  .chip:hover{border-color:rgba(232,255,74,.5)}
+  .chip.sel{background:var(--ball);color:var(--ink);border-color:var(--ball)}
+  .chip.sel small{color:rgba(10,10,11,.65)}
+  .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  .day{scroll-snap-align:center}
+  .day{flex:none;width:62px;padding:10px 0;border-radius:14px;border:1px solid var(--line);background:none;cursor:pointer;text-align:center}
+  .day .a{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--mute)}
+  .day .b{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.05}
+  .day.sel{background:var(--chalk);color:var(--ink);border-color:var(--chalk)}
+  .day.sel .a{color:#6b675e}
+  .ctr{margin-top:16px}
+  .ctr-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700}
+  .ctr-h small{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:400}
+  .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:7px}
+  .slot{min-height:46px;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:none;cursor:pointer;font-family:var(--mono);font-size:13px;text-align:center;transition:border-color .2s,background .2s}
+  .slot small{display:block;font-size:9.5px;color:var(--mute)}
+  .slot.pk small{color:var(--bubble)}
+  .slot:hover:not(:disabled){border-color:var(--ball);background:rgba(232,255,74,.08)}
+  .slot:disabled{opacity:.3;cursor:not-allowed;text-decoration:line-through}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--mute);margin:12px 0 0;flex-wrap:wrap}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+  .field input{width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--ink);color:var(--chalk);font:inherit;font-size:16px}
+  .field input:focus{outline:none;border-color:var(--ball)}
+  .msg{min-height:20px;font-size:13px;color:#FF9C7A;margin:4px 0 12px}
+  .gbtn{width:100%;display:flex;justify-content:center;align-items:center;gap:10px;padding:14px;border-radius:14px;border:none;background:#fff;color:#1f1f1f;font-weight:700;cursor:pointer}
+  .or{display:flex;align-items:center;gap:12px;margin:18px 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+  .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+  .switch{text-align:center;font-size:13.5px;color:var(--mute);margin-top:16px}
+  .switch button{background:none;border:none;color:var(--ball);cursor:pointer;text-decoration:underline}
+  .full{width:100%;justify-content:center}
+  .recap{border-radius:18px;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden;margin-bottom:18px}
+  .recap .top{padding:18px 20px;background:var(--court)}
+  .recap .top b{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:2rem;line-height:1;display:block}
+  .recap .row{display:flex;justify-content:space-between;gap:14px;padding:12px 20px;border-top:1px solid var(--line);font-size:14.5px}
+  .recap .row span:first-child{color:var(--mute)}
+  .recap .row span:last-child{font-family:var(--mono);text-align:right}
+  .recap .row.tot span{color:var(--chalk);font-weight:700}
+  .recap .row.tot span:last-child{color:var(--ball);font-size:1.15rem}
+  .pay{display:grid;gap:10px}
+  .po{display:flex;gap:14px;padding:16px;border-radius:16px;border:1px solid var(--line);cursor:pointer;background:none;text-align:left}
+  .po .r{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--mute);margin-top:2px;position:relative}
+  .po.sel{border-color:var(--ball);background:rgba(232,255,74,.05)}
+  .po.sel .r{border-color:var(--ball)}
+  .po.sel .r::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--ball)}
+  .po b{display:block;font-size:15px}
+  .po small{color:var(--mute);font-size:13px}
+  .note{font-size:12.5px;color:var(--mute);margin-top:14px;line-height:1.55}
+  .done{text-align:center;padding:10px 0 18px}
+  .done .ok{width:76px;height:76px;margin:0 auto 16px;border-radius:50%;background:var(--ball);color:var(--ink);display:grid;place-items:center}
+  .done h3{font-family:var(--display);font-weight:900;text-transform:uppercase;font-size:2.6rem;line-height:1}
+  .done p{color:var(--mute);margin-top:10px}
+  .bk{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:16px;box-shadow:inset 0 0 0 1px var(--line);margin-bottom:10px}
+  .bk .c{flex:none;width:52px;height:52px;border-radius:12px;background:var(--court);display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:1.8rem}
+  .bk .m{flex:1;font-size:14px;color:var(--mute)}
+  .bk .m b{color:var(--chalk);font-size:15px;display:block}
+  .bk .s2{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:100px;border:1px solid var(--line)}
+  .bk .s2.ok{color:var(--ball);border-color:rgba(232,255,74,.4)}
+  .bk .cancel{background:none;border:none;color:var(--mute);text-decoration:underline;font-size:12px;cursor:pointer;margin-top:8px}
+  .back{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+  .back:hover{color:var(--chalk)}
+  .toast{position:fixed;left:50%;bottom:24px;z-index:200;transform:translate(-50%,calc(100% + 60px));transition:transform .35s cubic-bezier(.2,.8,.2,1),visibility .35s;
+    background:var(--chalk);color:var(--ink);padding:13px 22px;border-radius:100px;font-weight:600;font-size:14px;max-width:92vw;visibility:hidden}
+  .toast.show{transform:translate(-50%,0);visibility:visible}
+  .legal-txt{font-size:14px;color:var(--mute);line-height:1.7}
+  .legal-txt h4{color:var(--chalk);margin:16px 0 4px;font-size:15px}
+
+
+  /* ---------- intro ---------- */
+  #intro{position:fixed;inset:0;z-index:300;background:var(--ink);display:none;place-items:center;overflow:hidden;
+    clip-path:inset(0 0 0 0);transition:clip-path .8s cubic-bezier(.77,0,.18,1)}
+  #intro.on{display:grid}
+  #intro.out{clip-path:inset(0 0 100% 0)}
+  .in-stage{font-family:var(--display);font-weight:900;text-transform:uppercase;line-height:.84;font-size:clamp(5rem,30vw,15rem);color:var(--chalk)}
+  .in-row{display:flex;align-items:flex-end;overflow:hidden;padding-bottom:.02em}
+  .in-row span{display:inline-block;transform:translateY(105%)}
+  .in-row .in-o,.in-row .in-gap{transform:none}
+  .in-row .in-gap{width:.12em}
+  .in-o{width:.74em;height:.74em;margin:0 .03em .06em;position:relative}
+  .in-ball{position:absolute;border-radius:50%;background:radial-gradient(circle at 34% 30%,#F6FFB0,var(--ball) 55%,#B9CC2A)}
+  .in-ball svg{width:100%;height:100%}
+  .in-ball{left:0;top:0;opacity:0;will-change:transform;box-shadow:0 0 60px 10px rgba(232,255,74,.25)}
+  .in-shadow{position:absolute;left:0;top:0;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.65),transparent);opacity:0}
+  .in-tag{position:absolute;left:16px;right:16px;bottom:12vh;text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);opacity:0;transition:opacity .5s}
+  .in-tag.on{opacity:1}
+  .in-skip{position:absolute;right:20px;top:20px;padding:10px 16px;border-radius:100px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:980px){
+    .nav-links{position:fixed;inset:0;height:100dvh;flex-direction:column;justify-content:center;gap:24px;background:rgba(10,10,11,.98);transform:translateY(-100%);visibility:hidden;transition:transform .45s cubic-bezier(.2,.8,.2,1),visibility .45s;z-index:-1}
+    .nav-links.open{transform:none;visibility:visible}
+    .nav-links a:not(.btn){font-family:var(--display);font-weight:800;font-size:2.2rem;text-transform:uppercase;color:var(--chalk)}
+    .burger{display:block}
+    .hero-row,.sec-head,.courts-layout,.bar-grid,.start,.infos{grid-template-columns:1fr}
+    .hero-cta{justify-content:flex-start}
+    .sec-head .lead{justify-self:start}
+    .pillars{grid-template-columns:1fr 1fr}
+    .pillar{border-right:none;border-bottom:1px solid var(--line-dark);padding:24px 0!important}
+    .price-grid,.progs{grid-template-columns:1fr 1fr}
+    .foot{grid-template-columns:1fr 1fr}
+    .sec{padding:96px 0}
+    .fab .btn{display:inline-flex}
+    .bubbles{aspect-ratio:16/11}
+  }
+  @media (max-width:620px){
+    .price-grid,.progs,.pillars{grid-template-columns:1fr}
+    .plan{padding:16px}.plan-grid{gap:8px}.pc .lbl{font-size:1.6rem}.pc .st{font-size:8.5px;padding:4px 6px}
+    .rates th,.rates td{padding:13px 14px;font-size:13.5px}
+    .foot{grid-template-columns:1fr}
+    .hero-meta{gap:14px 22px}
+    .mb{padding:18px}
+  }
+
+  /* ---------- mobile ---------- */
+  @media (max-width:620px){
+    .wrap{padding:0 18px}
+    .nav{height:64px}
+    .brand svg{height:28px}
+    .hero{padding:96px 0 34px;min-height:100svh}
+    .hero h1{font-size:clamp(4.6rem,27vw,7.5rem);margin-top:16px}
+    .status{font-size:10px;letter-spacing:.1em;padding:7px 12px 7px 10px}
+    .hero-row{margin-top:18px;gap:22px}
+    .hero-row p{font-size:1.02rem}
+    .hero-cta{display:grid;grid-template-columns:1fr auto;gap:10px}
+    .hero-cta .btn{justify-content:center;padding:15px 18px}
+    .hero-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-top:26px;padding-top:18px;font-size:11px}
+    .hero-meta span:last-child{grid-column:1/-1}
+    .sound{right:16px;bottom:16px}
+    .marquee{transform:rotate(-2deg);padding:12px 0}
+    .marquee .t{font-size:1.5rem}
+    .sec{padding:76px 0}
+    .sec-head{margin-bottom:34px;gap:16px}
+    .h-l{font-size:clamp(2.5rem,12.5vw,3.4rem)}
+    .manifest-text{font-size:clamp(2.1rem,10.5vw,3rem)}
+    .pillars{margin-top:44px}
+    .pillar .n{font-size:3.2rem}
+    .courts-layout{gap:26px}
+    .pcard{padding:28px 22px}
+    .pcard .big{font-size:3.6rem}
+    .price-grid{gap:22px}
+    .rates td.p small{display:block;margin-top:2px}
+    .prog{min-height:0;padding:24px 22px}
+    .prog h3{margin-top:28px}
+    .bubbles{aspect-ratio:4/3}
+    .menu div{flex-direction:column;align-items:flex-start;gap:4px}
+    .menu div span:last-child{text-align:left}
+    .stepx{grid-template-columns:54px 1fr}
+    .stepx::before{font-size:2.1rem}
+    .info-card{padding:24px 20px}
+    .rows div{flex-direction:column;gap:4px}
+    .rows span:last-child{text-align:left}
+    .contact-actions .btn{flex:1;justify-content:center}
+    .map,.map iframe{min-height:300px}
+    .final{padding:96px 0}
+    footer{padding-bottom:110px}
+    /* barre de réservation pleine largeur */
+    .fab{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:8px;border-radius:100px;
+      background:rgba(18,18,20,.92);backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--line),0 18px 40px -12px rgba(0,0,0,.8)}
+    .fab .btn{flex:1;justify-content:center;padding:15px}
+    .fab-call{width:50px;height:50px;box-shadow:none;background:var(--ink-3)}
+    /* modale en bottom sheet */
+    .modal{left:0;right:0;top:auto;bottom:0;width:100%;transform:none;max-height:92dvh;border-radius:24px 24px 0 0;
+      padding-bottom:env(safe-area-inset-bottom);animation:sheet .38s cubic-bezier(.2,.8,.2,1)}
+    .mh{padding:16px 18px}
+    .mh::before{content:"";position:absolute;left:50%;top:6px;width:38px;height:4px;border-radius:4px;background:var(--line);transform:translateX(-50%)}
+    .mh .t{font-size:1.45rem}
+    .chips{display:grid;grid-template-columns:repeat(3,1fr)}
+    .chip{min-width:0;padding:11px 6px}
+    .chip small{font-size:9.5px}
+    .slots{grid-template-columns:repeat(4,1fr)}
+    .recap .top b{font-size:1.7rem}
+    .toast{bottom:auto;top:calc(12px + env(safe-area-inset-top));transform:translate(-50%,-160%);text-align:center}
+    .mb .btn{white-space:normal;letter-spacing:.08em;padding:15px 14px;text-align:center}
+  }
+  @keyframes sheet{from{transform:translateY(100%)}}
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .rv{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= INTRO (1 fois par session) ================= -->
+<div id="intro" aria-hidden="true">
+  <div class="in-stage">
+    <div class="in-row"><span>P</span><span>A</span><span>D</span><span>E</span><span>L</span></div>
+    <div class="in-row"><span>N</span><span class="in-gap"></span><span class="in-o"></span><span>N</span><span>E</span></div>
+  </div>
+  <div class="in-ball" id="inBall"><svg viewBox="3 3 34 34"><path d="M5 14c9 5 21 5 30 0M5 26c9-5 21-5 30 0" stroke="#0A0A0B" stroke-width="2.2" fill="none"/></svg></div>
+  <div class="in-shadow" id="inShadow"></div>
+  <div class="in-tag">Saint-Memmie · 6 pistes · Bar La Bulle</div>
+  <button class="in-skip" id="inSkip">Passer</button>
+</div>
+
+<!-- ================= HEADER ================= -->
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="#top" class="brand" aria-label="Padel N One — accueil">
+      <svg viewBox="0 0 210 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#E8FF4A"/>
+        <path d="M5 14c9 5 21 5 30 0M5 26c9-5 21-5 30 0" stroke="#0A0A0B" stroke-width="2.4" fill="none"/>
+        <text x="46" y="29" font-family="Big Shoulders Display,Impact,sans-serif" font-weight="900" font-size="28" fill="#F2EEE4" letter-spacing=".5">PADEL N ONE</text>
+      </svg>
+    </a>
+    <nav class="nav-links" id="links">
+      <a href="#pistes">Les pistes</a>
+      <a href="#bar">Le bar</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#club">Cours & events</a>
+      <a href="#infos">Accès</a>
+      <button class="acct" id="acctBtn"><span class="av" id="acctAv">P</span><span id="acctName">Mon compte</span></button>
+      <a href="#" class="btn btn-ball js-book">Réserver <span class="arr">→</span></a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Ouvrir le menu">MENU</button>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="hero-media" aria-hidden="true">
+    <div class="hero-fallback" id="fallback"><canvas id="court"></canvas></div>
+    <video id="heroVideo" autoplay muted loop playsinline preload="metadata" poster="">
+      <source src="padel-n-one.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <div class="hero-shade"></div>
+  <div class="wrap">
+    <div class="status rv in"><i></i>Nouveau club · Ouverture octobre 2026</div>
+    <h1 class="h-xl rv in d1">Padel<br>N <span class="o" aria-hidden="true"></span>ne<span style="position:absolute;left:-9999px">One</span></h1>
+    <div class="hero-row">
+      <p class="rv in d2">Six pistes, un bar, une seule obsession : le jeu. Le nouveau club de padel de Saint-Memmie, aux portes de Châlons-en-Champagne.</p>
+      <div class="hero-cta rv in d3">
+        <a href="#" class="btn btn-ball js-book">Réserver une piste <span class="arr">→</span></a>
+        <a href="#tarifs" class="btn btn-line">Tarifs</a>
+      </div>
+    </div>
+    <div class="hero-meta rv in d3">
+      <span><b>6</b> pistes</span>
+      <span><b>Bar</b> La Bulle</span>
+      <span><b>7j/7</b> · 8h – 23h</span>
+      <span><b>Réservation</b> en ligne 24h/24</span>
+      <span>1 rue Eugène Freyssinet · Saint-Memmie</span>
+    </div>
+  </div>
+  <button class="sound" id="soundBtn" aria-label="Activer le son de la vidéo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path id="soundWave" d="M16 9a4 4 0 0 1 0 6"/></svg>
+  </button>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="t" id="mq">
+  <span>6 pistes</span><span>Bar La Bulle</span><span>Saint-Memmie</span><span>Tous niveaux</span><span>Tournois</span><span>Afterwork</span><span>Châlons-en-Champagne</span>
+</div></div>
+
+<!-- ================= MANIFESTE ================= -->
+<section class="sec manifest">
+  <div class="wrap">
+    <div class="kicker rv">Le club</div>
+    <p class="manifest-text rv d1">Ici, on joue pour <em>gagner</em>, on reste pour <em>trinquer</em>.</p>
+    <p class="lead rv d2" style="margin-top:28px;color:#55524b">Padel N One est né d'une idée simple : la Marne méritait un vrai club de padel. Pas un terrain posé dans un coin, un lieu où l'on vient taper la balle, progresser, rencontrer des partenaires de jeu et finir la soirée au bar.</p>
+    <div class="pillars">
+      <div class="pillar rv"><div class="n">06</div><h3>Pistes</h3><p>Six terrains pour trouver un créneau, même le soir et le week-end.</p></div>
+      <div class="pillar rv d1"><div class="n">01</div><h3>Bar</h3><p>La Bulle : le QG d'après-match, ouvert à tous.</p></div>
+      <div class="pillar rv d2"><div class="n">24/7</div><h3>Réservation</h3><p>En ligne, en quelques secondes, depuis votre téléphone.</p></div>
+      <div class="pillar rv d3"><div class="n">∞</div><h3>Niveaux</h3><p>Du premier échange au tournoi homologué.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PISTES ================= -->
+<section class="sec" id="pistes">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="kicker rv">Les installations</div><h2 class="h-l rv d1" style="margin-top:18px">Six pistes.<br><span class="ball-c">Zéro excuse.</span></h2></div>
+      <p class="lead rv d2">Choisissez votre piste directement sur le plan, ou laissez-nous vous attribuer la première disponible.</p>
+    </div>
+    <div class="courts-layout">
+      <div class="plan rv">
+        <div class="plan-grid" id="planGrid"></div>
+        <div class="plan-foot"><span>Plan du complexe</span><span>Cliquez pour réserver</span></div>
+      </div>
+      <div class="specs">
+        <div class="spec rv"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 12h18"/></svg></div><div><h4>Pistes aux normes</h4><p>Terrains de 20 × 10 m, parois vitrées, gazon synthétique et éclairage LED pour jouer à toute heure.</p></div></div>
+        <div class="spec rv d1"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="9" rx="6" ry="7"/><path d="M12 16v5M9.5 21h5"/></svg></div><div><h4>Location de matériel</h4><p>Raquettes et balles disponibles à l'accueil. Venez les mains vides, repartez accro.</p></div></div>
+        <div class="spec rv d2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 21V9l6-4 6 4v12M9 21v-5h6v5"/></svg></div><div><h4>Vestiaires & douches</h4><p>Pour enchaîner bureau, match et soirée sans repasser par la maison.</p></div></div>
+        <div class="spec rv d3"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="11" width="18" height="8" rx="2"/><path d="M7 11V7h10v4M7 19v2M17 19v2"/></svg></div><div><h4>Parking gratuit</h4><p>Zone d'activités de Saint-Memmie, accès direct depuis Châlons.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BAR ================= -->
+<section class="sec bar" id="bar">
+  <div class="wrap bar-grid">
+    <div class="bubbles rv" id="bubbles">
+      <div class="glass"><small>Le bar du club</small><b>La<br>Bulle</b><small>Saint-Memmie</small></div>
+    </div>
+    <div>
+      <div class="kicker rv">Après le match</div>
+      <h2 class="h-l rv d1" style="margin-top:18px">Le troisième set<br>se joue <span class="bub">au bar.</span></h2>
+      <p class="lead rv d2" style="margin-top:20px">On est en Champagne : la victoire se fête comme il se doit. La Bulle, c'est le bar du club, avec vue sur les pistes. Ouvert aux joueurs, à leurs supporters et à tous ceux qui passent.</p>
+      <div class="menu rv d3">
+        <div><span>Pressions & softs<small>Bières locales, boissons fraîches, eaux</small></span><span>Après l'effort</span></div>
+        <div><span>Champagne au verre<small>Producteurs de la Marne</small></span><span>Pour la victoire</span></div>
+        <div><span>Planches & snacking<small>À partager entre équipes</small></span><span>Pour la revanche</span></div>
+        <div><span>Retransmissions<small>Premier Padel, matchs, grands événements</small></span><span>Sur écran</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TARIFS ================= -->
+<section class="sec tarifs" id="tarifs">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="kicker rv">Tarifs</div><h2 class="h-l rv d1" style="margin-top:18px">Prix clairs.<br>Partagés à quatre.</h2></div>
+      <p class="lead rv d2">Le prix affiché est celui de la piste. Divisé par quatre joueurs, une partie revient à moins qu'une place de cinéma.</p>
+    </div>
+    <div class="price-grid">
+      <div class="pcard rv">
+        <span class="tag">À la partie</span><h3>Heures creuses</h3>
+        <div class="big" id="pHC">—<small>/ pers.</small></div>
+        <ul><li>Semaine avant 17h</li><li>Session de 1h30</li><li>Piste pour 4 joueurs</li></ul>
+        <a href="#" class="btn btn-ink js-book">Réserver</a>
+      </div>
+      <div class="pcard hot rv d1">
+        <span class="tag">À la partie</span><h3>Heures pleines</h3>
+        <div class="big" id="pHP">—<small>/ pers.</small></div>
+        <ul><li>Semaine dès 17h & week-end</li><li>Session de 1h30</li><li>Bar ouvert à la sortie</li></ul>
+        <a href="#" class="btn btn-ball js-book">Réserver</a>
+      </div>
+      <div class="pcard rv d2">
+        <span class="tag">Réguliers</span><h3>Carnet 10 parties</h3>
+        <div class="big">−15<small>%</small></div>
+        <ul><li>10 sessions de 1h30</li><li>Valable 12 mois</li><li>Partageable entre partenaires</li></ul>
+        <a href="tel:+33630291307" class="btn btn-ink">Nous appeler</a>
+      </div>
+    </div>
+    <div class="rates rv">
+      <table>
+        <thead><tr><th>Durée</th><th>Heures creuses</th><th>Heures pleines</th></tr></thead>
+        <tbody id="rateRows"></tbody>
+      </table>
+    </div>
+    <p class="rates-note rv">Prix par piste, TTC. Location de raquette : 3 €. Balles neuves en vente à l'accueil. Tarifs de lancement susceptibles d'évoluer.</p>
+  </div>
+</section>
+
+<!-- ================= PROGRAMMES ================= -->
+<section class="sec" id="club">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="kicker rv">Le club</div><h2 class="h-l rv d1" style="margin-top:18px">Jouer, progresser,<br><span class="ball-c">se retrouver.</span></h2></div>
+      <p class="lead rv d2">Au-delà de la location de pistes, Padel N One vit grâce à sa communauté.</p>
+    </div>
+    <div class="progs">
+      <div class="prog rv"><span class="num">01</span><h3>Cours & coaching</h3><p>Initiations, cours collectifs par niveau et leçons particulières avec un coach diplômé.</p></div>
+      <div class="prog rv d1"><span class="num">02</span><h3>Tournois</h3><p>Tournois internes, soirées américaines et compétitions homologuées FFT.</p></div>
+      <div class="prog rv d2"><span class="num">03</span><h3>Entreprises</h3><p>Team building, afterworks et séminaires : pistes, coach et bar privatisables.</p></div>
+      <div class="prog rv d3"><span class="num">04</span><h3>Événements</h3><p>Anniversaires, EVG / EVJF, enterrements de vie de garçon en mode compétition.</p></div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:30px" class="rv">
+      <a href="mailto:contact@padelnone.fr?subject=Demande%20entreprise%20%2F%20%C3%A9v%C3%A9nement" class="btn btn-line">Demander un devis événement <span class="arr">→</span></a>
+      <a href="https://www.instagram.com/padel_n_one/" target="_blank" rel="noopener" class="btn btn-line">Suivre @padel_n_one</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DÉBUTER + FAQ ================= -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap start">
+    <div>
+      <div class="kicker rv">Première fois ?</div>
+      <h2 class="h-l rv d1" style="margin:18px 0 30px">Jouer en<br>3 étapes.</h2>
+      <div class="steps">
+        <div class="stepx rv"><div><h4>Réservez une piste</h4><p>Choisissez le jour, l'heure et la durée en ligne. Une seule personne réserve pour les quatre.</p></div></div>
+        <div class="stepx rv d1"><div><h4>Venez à quatre</h4><p>Le padel se joue en double. Il vous manque un joueur ? Demandez à l'accueil ou sur Instagram.</p></div></div>
+        <div class="stepx rv d2"><div><h4>Jouez, puis trinquez</h4><p>Raquettes sur place, règles expliquées en 2 minutes. La Bulle vous attend après le match.</p></div></div>
+      </div>
+    </div>
+    <div class="faq">
+      <div class="kicker rv" style="margin-bottom:24px">Questions fréquentes</div>
+      <details class="rv"><summary>Faut-il savoir jouer au tennis ?</summary><p>Non. Le padel est plus facile à prendre en main : raquette pleine, service à la cuillère, balle qui rebondit sur les vitres. Les premiers échanges arrivent en quelques minutes.</p></details>
+      <details class="rv"><summary>Combien de joueurs par piste ?</summary><p>Quatre, en double. Le prix de la piste se partage entre les joueurs.</p></details>
+      <details class="rv"><summary>Je n'ai pas de raquette.</summary><p>Location sur place à l'accueil. Prévoyez des chaussures de sport propres, idéalement à semelle adaptée aux surfaces synthétiques.</p></details>
+      <details class="rv"><summary>Puis-je annuler ma réservation ?</summary><p>Oui, gratuitement jusqu'à 24 h avant le créneau, depuis votre compte ou par téléphone.</p></details>
+      <details class="rv"><summary>Le bar est-il ouvert aux non-joueurs ?</summary><p>Oui. Supporters, amis et curieux sont les bienvenus à La Bulle.</p></details>
+      <details class="rv"><summary>Proposez-vous des cours enfants ?</summary><p>Une école de padel jeunes est prévue. Contactez-nous pour être prévenu de l'ouverture des inscriptions.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INFOS ================= -->
+<section class="sec" id="infos" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="kicker rv">Accès</div><h2 class="h-l rv d1" style="margin-top:18px">Saint-Memmie,<br>5 min de Châlons.</h2></div>
+    </div>
+    <div class="infos">
+      <div class="info-card rv">
+        <h3>Horaires</h3>
+        <div class="rows">
+          <div><span>Pistes</span><span>7j/7 · 8h – 23h</span></div>
+          <div><span>Bar La Bulle</span><span>Selon planning des pistes</span></div>
+          <div><span>Réservation en ligne</span><span>24h/24</span></div>
+        </div>
+        <h3 style="margin-top:30px">Contact</h3>
+        <div class="rows">
+          <div><span>Adresse</span><span>1 rue Eugène Freyssinet<br>51470 Saint-Memmie</span></div>
+          <div><span>Téléphone</span><span><a href="tel:+33630291307">06 30 29 13 07</a></span></div>
+          <div><span>Instagram</span><span><a href="https://www.instagram.com/padel_n_one/" target="_blank" rel="noopener">@padel_n_one</a></span></div>
+        </div>
+        <div class="contact-actions">
+          <a class="btn btn-ball" href="https://www.google.com/maps/dir/?api=1&destination=1+rue+Eug%C3%A8ne+Freyssinet+51470+Saint-Memmie" target="_blank" rel="noopener">Itinéraire <span class="arr">→</span></a>
+          <a class="btn btn-line" href="tel:+33630291307">Appeler</a>
+        </div>
+      </div>
+      <div class="map rv d1">
+        <iframe title="Plan d'accès Padel N One" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=1+rue+Eug%C3%A8ne+Freyssinet,+51470+Saint-Memmie&output=embed"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="final">
+  <div class="wrap rv">
+    <div class="kicker" style="justify-content:center">Prêts ?</div>
+    <h2 class="h-xl" style="margin-top:18px">À vous<br><span class="ball-c">de servir.</span></h2>
+    <p>Choisissez votre créneau, réunissez votre équipe, on s'occupe du reste.</p>
+    <a href="#" class="btn btn-ball js-book">Réserver une piste <span class="arr">→</span></a>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <svg viewBox="0 0 210 40" style="height:32px;width:auto" aria-label="Padel N One">
+          <circle cx="20" cy="20" r="17" fill="#E8FF4A"/>
+          <path d="M5 14c9 5 21 5 30 0M5 26c9-5 21-5 30 0" stroke="#0A0A0B" stroke-width="2.4" fill="none"/>
+          <text x="46" y="29" font-family="Big Shoulders Display,Impact,sans-serif" font-weight="900" font-size="28" fill="#F2EEE4">PADEL N ONE</text>
+        </svg>
+        <p>Complexe de padel 6 pistes et bar à Saint-Memmie, aux portes de Châlons-en-Champagne (Marne).</p>
+      </div>
+      <div><h5>Le club</h5><a href="#pistes">Les pistes</a><a href="#bar">Bar La Bulle</a><a href="#tarifs">Tarifs</a><a href="#club">Cours & événements</a></div>
+      <div><h5>Contact</h5><a href="tel:+33630291307">06 30 29 13 07</a><a href="https://www.instagram.com/padel_n_one/" target="_blank" rel="noopener">Instagram</a><span>1 rue Eugène Freyssinet</span><span>51470 Saint-Memmie</span></div>
+      <div><h5>Réserver</h5><a href="#" class="js-book">Réserver une piste</a><a href="#" id="footAcct">Mon compte</a><a href="#infos">Horaires & accès</a></div>
+    </div>
+    <div class="legal">
+      <span>© <span id="yr"></span> SAS Padel N One · Saint-Memmie</span>
+      <button id="legalBtn">Mentions légales</button>
+    </div>
+  </div>
+</footer>
+
+<div class="fab">
+  <a href="#" class="btn btn-ball js-book">Réserver</a>
+  <a href="tel:+33630291307" class="fab-call" aria-label="Appeler Padel N One au 06 30 29 13 07">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h4l2 5-3 2c1 2 3 4 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+  </a>
+</div>
+
+<div class="mroot" id="mroot" aria-hidden="true">
+  <div class="mbg" data-close></div>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT">
+    <div class="mh"><div><div class="t" id="mT">Réserver</div><div class="s" id="mS"></div></div>
+      <button class="x" data-close aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="mb" id="mB"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =============================================================
+   CONFIG — toutes les données à valider avec le club sont ici
+   ============================================================= */
+var CONFIG = {
+  open: 8*60, close: 23*60,                 // 8h → 23h, 7j/7
+  durations: [60, 90, 120],
+  prices: {                                 // prix PAR PISTE (4 joueurs)
+    60:  {hc: 32, hp: 40},
+    90:  {hc: 42, hp: 54},
+    120: {hc: 56, hp: 72}
+  },
+  isPeak: function(date, startMin){          // heures pleines : semaine ≥ 17h + week-end
+    var d = date.getDay(); return d===0 || d===6 || startMin >= 17*60;
+  },
+  courts: [
+    {id:1, type:''}, {id:2, type:''}, {id:3, type:''},   // ex. 'Indoor', 'Panoramique'
+    {id:4, type:''}, {id:5, type:''}, {id:6, type:''}
+  ],
+  phone: '06 30 29 13 07', tel: '+33630291307'
+};
+
+/* ---------- utilitaires ---------- */
+function $(s,c){return (c||document).querySelector(s);}
+function $$(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s));}
+function eur(v){return (v%1? v.toFixed(2).replace('.',','):v)+' €';}
+function hm(m){var h=Math.floor(m/60),mm=m%60;return h+'h'+(mm<10?'0'+mm:mm);}
+function dur(m){var h=Math.floor(m/60),mm=m%60;return mm? h+'h'+mm : h+'h';}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fromIso(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+var DOW=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'], MON=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+function longDate(d){return DOW[d.getDay()].toLowerCase()+' '+d.getDate()+' '+MON[d.getMonth()];}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function store(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
+var toastT;function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('show');},3000);}
+
+/* ---------- interface ---------- */
+(function(){
+  var hdr=$('#hdr');
+  addEventListener('scroll',function(){hdr.classList.toggle('solid',scrollY>30);},{passive:true});
+  var b=$('#burger'),l=$('#links');
+  b.addEventListener('click',function(){var o=l.classList.toggle('open');b.textContent=o?'FERMER':'MENU';document.body.classList.toggle('lock',o);});
+  $$('#links a').forEach(function(a){a.addEventListener('click',function(){l.classList.remove('open');b.textContent='MENU';document.body.classList.remove('lock');});});
+  $('#yr').textContent=new Date().getFullYear();
+  var mq=$('#mq');mq.innerHTML+=mq.innerHTML;
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+  $$('.rv:not(.in)').forEach(function(el){io.observe(el);});
+
+  /* vidéo hero : affichée si le fichier existe, sinon fond animé */
+  var v=$('#heroVideo'),fb=$('#fallback'),sb=$('#soundBtn');
+  function ok(){v.classList.add('ready');fb.style.display='none';sb.classList.add('on');if(window.Court)Court.stop();}
+  v.addEventListener('canplay',ok);
+  if(v.readyState>=3)ok();
+  v.querySelector('source').addEventListener('error',function(){v.style.display='none';});
+  sb.addEventListener('click',function(){v.muted=!v.muted;$('#soundWave').style.display=v.muted?'none':'';});
+  $('#soundWave').style.display='none';
+
+  /* bulles du bar */
+  var bub=$('#bubbles');
+  for(var i=0;i<26;i++){var s=document.createElement('span');var z=6+Math.random()*22;
+    s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+(Math.random()*100)+'%;animation-duration:'+(6+Math.random()*9)+'s;animation-delay:-'+(Math.random()*12)+'s;--dx:'+(Math.random()*40-20)+'px';bub.appendChild(s);}
+
+  /* tarifs depuis CONFIG */
+  $('#pHC').innerHTML=eur(CONFIG.prices[90].hc/4)+'<small>/ pers.</small>';
+  $('#pHP').innerHTML=eur(CONFIG.prices[90].hp/4)+'<small>/ pers.</small>';
+  $('#rateRows').innerHTML=CONFIG.durations.map(function(d){var p=CONFIG.prices[d];
+    return '<tr><td>'+dur(d)+'</td><td class="p">'+eur(p.hc)+' <small>· '+eur(p.hc/4)+'/pers.</small></td><td class="p">'+eur(p.hp)+' <small>· '+eur(p.hp/4)+'/pers.</small></td></tr>';}).join('');
+
+  /* plan des pistes */
+  var courtSvg='<svg viewBox="0 0 100 200" preserveAspectRatio="none" fill="none" stroke="#F2EEE4" stroke-width="1.6" opacity=".85"><rect x="6" y="6" width="88" height="188"/><line x1="6" y1="100" x2="94" y2="100" stroke="#E8FF4A" stroke-width="2.6"/><line x1="6" y1="37" x2="94" y2="37"/><line x1="6" y1="163" x2="94" y2="163"/><line x1="50" y1="37" x2="50" y2="163"/></svg>';
+  $('#planGrid').innerHTML=CONFIG.courts.map(function(c){
+    return '<button class="pc js-book" data-court="'+c.id+'" aria-label="Réserver la piste '+c.id+'">'+courtSvg+'<span class="lbl">0'+c.id+'</span><span class="st"><i></i>Réserver</span></button>';}).join('');
+
+  /* barre de réservation : visible après le hero */
+  var fab=$('.fab');fab.classList.add('hide');
+  new IntersectionObserver(function(es){fab.classList.toggle('hide',es[0].isIntersecting);},{threshold:.15}).observe($('#top'));
+
+  /* mentions légales */
+  $('#legalBtn').addEventListener('click',function(){Booking.legal();});
+})();
+
+/* =============================================================
+   INTRO — lettres + balle qui rebondit et devient le « O »
+   ============================================================= */
+(function(){
+  var el=$('#intro');if(!el)return;
+  var seen=false;try{seen=sessionStorage.getItem('pn1_intro')==='1';}catch(e){}
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(seen||reduce||!el.animate){el.remove();return;}
+  try{sessionStorage.setItem('pn1_intro','1');}catch(e){}
+  el.classList.add('on');document.body.classList.add('lock');
+  var ended=false,timers=[];
+  function finish(){if(ended)return;ended=true;timers.forEach(clearTimeout);
+    el.classList.add('out');document.body.classList.remove('lock');
+    setTimeout(function(){el.remove();},850);}
+  $('#inSkip').onclick=finish;el.addEventListener('click',function(e){if(e.target.id!=='inSkip')finish();});
+  addEventListener('keydown',function k(e){if(e.key==='Escape'||e.key===' '||e.key==='Enter'){finish();removeEventListener('keydown',k);}});
+
+  var E='cubic-bezier(.2,.8,.2,1)';
+  $$('.in-row span:not(.in-o):not(.in-gap)',el).forEach(function(sp,i){
+    sp.animate([{transform:'translateY(105%)'},{transform:'translateY(0)'}],{duration:620,delay:120+i*55,easing:E,fill:'forwards'});});
+
+  requestAnimationFrame(function(){
+    var o=$('.in-o',el).getBoundingClientRect(),ball=$('#inBall'),sh=$('#inShadow');
+    var d=o.width,x=o.left,y=o.top,top=-d*1.4-y;
+    ball.style.cssText+='width:'+d+'px;height:'+d+'px;transform:translate('+x+'px,'+y+'px)';
+    sh.style.cssText+='width:'+d*1.3+'px;height:'+d*.3+'px;transform:translate('+(x-d*.15)+'px,'+(y+d*.88)+'px)';
+    var T=function(dy,sx,sy){return 'translate('+x+'px,'+(y+dy)+'px) scale('+(sx||1)+','+(sy||1)+')';};
+    /* chute + 3 rebonds amortis, écrasement au contact */
+    var kf=[
+      {transform:T(top),opacity:1,offset:0,easing:'cubic-bezier(.55,0,1,.45)'},
+      {transform:T(d*.08,1.22,.78),offset:.36,easing:'cubic-bezier(0,.55,.45,1)'},
+      {transform:T(-d*1.1),offset:.56,easing:'cubic-bezier(.55,0,1,.45)'},
+      {transform:T(d*.05,1.12,.88),offset:.74,easing:'cubic-bezier(0,.55,.45,1)'},
+      {transform:T(-d*.32),offset:.84,easing:'cubic-bezier(.55,0,1,.45)'},
+      {transform:T(d*.02,1.05,.95),offset:.93,easing:'ease-out'},
+      {transform:T(0),opacity:1,offset:1}];
+    var dur=1250,delay=520;
+    ball.animate(kf,{duration:dur,delay:delay,fill:'forwards'});
+    sh.animate([{opacity:0,transform:sh.style.transform+' scale(.3)'},{opacity:1,transform:sh.style.transform+' scale(1)',offset:.36},
+      {opacity:.3,offset:.56},{opacity:.9,offset:.74},{opacity:.6,offset:.84},{opacity:.8,offset:1}],{duration:dur,delay:delay,fill:'forwards'});
+    timers.push(setTimeout(function(){$('.in-tag',el).classList.add('on');},delay+dur-200));
+    timers.push(setTimeout(finish,delay+dur+900));
+  });
+})();
+
+/* =============================================================
+   HERO — piste 3D + échange réaliste (canvas)
+   Coordonnées en mètres : x largeur (-5→5), y longueur (0 proche → 20 fond), z hauteur
+   ============================================================= */
+var Court=(function(){
+  var cv=$('#court');if(!cv||!cv.getContext)return{stop:function(){}};
+  var ctx=cv.getContext('2d'),W=0,H=0,f=1,D=8,CAM=6,hz=0,cx=0,running=true,visible=true,raf=0,last=0;
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var C={ink:'#0A0A0B',court:'#2448FF',courtFar:'#1a34c4',line:'rgba(242,238,228,.92)',ball:'#E8FF4A',glass:'rgba(190,210,255,'};
+
+  function size(){
+    var dpr=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;if(!W||!H)return;
+    cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
+    var portrait=H>W;
+    f=Math.min(H*(portrait?.56:.8), W*D/10*(portrait?1.6:.62));
+    var farTop=H*(portrait?.2:.24);
+    hz=farTop-CAM*f/(D+20);
+    cx=portrait?W/2:W*.64;
+  }
+  function P(x,y,z){var d=y+D;return{x:cx+x*f/d,y:hz+(CAM-z)*f/d,s:f/d};}
+  function poly(pts,fill,stroke,lw){ctx.beginPath();pts.forEach(function(p,i){i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);});ctx.closePath();
+    if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1;ctx.stroke();}}
+  function seg(a,b,col,lw){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.stroke();}
+
+  /* ---- échange ---- */
+  function rnd(a,b){return a+Math.random()*(b-a);}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  var segs=[],si=0,st=0,fx=[],trail=[];
+  function shot(from){
+    var dir=from.y<10?1:-1,s=[];
+    var b={x:rnd(-3.6,3.6),y:dir>0?rnd(13.5,17.2):rnd(2.8,6.5),z:0};
+    s.push({a:from,b:b,d:rnd(.82,1.02),h:rnd(1.25,1.9),end:'bounce'});
+    if(Math.random()<.42){                       /* rebond sur la vitre du fond */
+      var w={x:clamp(b.x+rnd(-1.2,1.2),-4.6,4.6),y:dir>0?20:0,z:rnd(1.1,1.7)};
+      var hit={x:clamp(w.x+rnd(-1,1),-4,4),y:dir>0?rnd(16.6,18):rnd(2,3.4),z:rnd(.8,1.1)};
+      s.push({a:b,b:w,d:rnd(.34,.42),h:.45,end:'wall'});
+      s.push({a:w,b:hit,d:rnd(.4,.5),h:.35,end:'hit'});
+    }else{
+      var hit2={x:clamp(b.x+rnd(-1.6,1.6),-4,4),y:dir>0?rnd(18.2,19.3):rnd(.7,1.8),z:rnd(.8,1.15)};
+      s.push({a:b,b:hit2,d:rnd(.42,.55),h:rnd(.5,.75),end:'hit'});
+    }
+    return s;
+  }
+  segs=shot({x:-1.5,y:1.2,z:1});
+  function pos(sg,t){var u=t,z=sg.a.z+(sg.b.z-sg.a.z)*u+4*sg.h*u*(1-u);
+    return{x:sg.a.x+(sg.b.x-sg.a.x)*u,y:sg.a.y+(sg.b.y-sg.a.y)*u,z:z};}
+  function event(type,p){fx.push({type:type,x:p.x,y:p.y,z:p.z,t:0});}
+
+  /* ---- dessin statique ---- */
+  function drawCourt(){
+    var g=ctx.createLinearGradient(0,P(0,20,0).y,0,P(0,0,0).y);g.addColorStop(0,C.courtFar);g.addColorStop(1,C.court);
+    /* sol hors piste */
+    var bg=ctx.createRadialGradient(cx,P(0,10,0).y,10,cx,P(0,10,0).y,Math.max(W,H)*.8);
+    bg.addColorStop(0,'#15161c');bg.addColorStop(1,C.ink);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    poly([P(-5,0,0),P(5,0,0),P(5,20,0),P(-5,20,0)],g);
+    var lw=function(y){return Math.max(1,.06*f/(y+D));};
+    [[-5,0,5,0],[-5,20,5,20],[-5,0,-5,20],[5,0,5,20],[-5,3.05,5,3.05],[-5,16.95,5,16.95],[0,3.05,0,16.95]].forEach(function(l){
+      seg(P(l[0],l[1],0),P(l[2],l[3],0),C.line,lw((l[1]+l[3])/2));});
+  }
+  function drawGlass(far){
+    /* vitres : fond 4 m de haut, côtés 3 m sur 4 m puis grillage — rendu discret */
+    var y=far?20:0,a=far?.10:.05;
+    poly([P(-5,y,0),P(5,y,0),P(5,y,4),P(-5,y,4)],C.glass+a+')',C.glass+(a*2.2)+')',1);
+    [-5,5].forEach(function(x){
+      var y0=far?20:0,y1=far?16:4;
+      poly([P(x,y0,0),P(x,y1,0),P(x,y1,3),P(x,y0,3)],C.glass+(a*.8)+')',C.glass+(a*2)+')',1);
+      for(var k=0;k<=20;k+=2){var p0=P(x,k,0),p1=P(x,k,(k<4||k>16)?(k===0||k===20?4:3):3);
+        if((far&&k>=10)||(!far&&k<10))seg(p0,p1,'rgba(242,238,228,'+(far?.16:.08)+')',Math.max(1,.05*p0.s));}
+      var rail=far?[10,20]:[0,10];seg(P(x,rail[0],3),P(x,rail[1],3),'rgba(242,238,228,'+(far?.18:.08)+')',Math.max(1,.04*f/(15+D)));
+    });
+  }
+  function drawNet(){
+    var l=P(-5,10,0),r=P(5,10,0),lt=P(-5,10,.92),rt=P(5,10,.92);
+    poly([l,r,P(5,10,.88),P(-5,10,.88)],'rgba(10,10,11,.38)');
+    ctx.save();ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(r.x,r.y);ctx.lineTo(rt.x,rt.y);ctx.lineTo(lt.x,lt.y);ctx.closePath();ctx.clip();
+    ctx.strokeStyle='rgba(242,238,228,.22)';ctx.lineWidth=1;
+    for(var i=-5;i<=5;i+=.25){var a=P(i,10,0),b=P(i,10,.88);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    for(var z=0;z<=.88;z+=.11){var c=P(-5,10,z),d=P(5,10,z);ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.stroke();}
+    ctx.restore();
+    seg(P(-5,10,.88),P(5,10,.88),C.ball,Math.max(2,.07*f/(10+D)));
+    [-5.1,5.1].forEach(function(x){seg(P(x,10,0),P(x,10,.95),'rgba(242,238,228,.7)',Math.max(2,.08*f/(10+D)));});
+  }
+
+  /* ---- dessin dynamique ---- */
+  function drawFx(dt){
+    fx=fx.filter(function(e){e.t+=dt;return e.t<.7;});
+    fx.forEach(function(e){var k=e.t/.7,a=1-k;
+      if(e.type==='bounce'){var p=P(e.x,e.y,0),rx=(.15+k*.9)*p.s,ry=rx*.32;
+        ctx.beginPath();ctx.ellipse(p.x,p.y,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='rgba(232,255,74,'+(a*.9)+')';ctx.lineWidth=2;ctx.stroke();}
+      else if(e.type==='wall'){var q=P(e.x,e.y,e.z),r=(.2+k*1.1)*q.s;
+        ctx.beginPath();ctx.ellipse(q.x,q.y,r,r*.9,0,0,Math.PI*2);ctx.strokeStyle='rgba(190,210,255,'+(a*.8)+')';ctx.lineWidth=2;ctx.stroke();
+        var gl=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,r*2.2);gl.addColorStop(0,'rgba(190,210,255,'+(a*.25)+')');gl.addColorStop(1,'rgba(190,210,255,0)');
+        ctx.fillStyle=gl;ctx.fillRect(q.x-r*2.2,q.y-r*2.2,r*4.4,r*4.4);}
+      else if(e.type==='hit'){var h=P(e.x,e.y,e.z),rr=(.1+k*.7)*h.s;
+        ctx.beginPath();ctx.arc(h.x,h.y,rr,0,Math.PI*2);ctx.strokeStyle='rgba(242,238,228,'+(a*.7)+')';ctx.lineWidth=1.5;ctx.stroke();}
+    });
+  }
+  function drawBall(b,squash){
+    var sh=P(b.x,b.y,0),p=P(b.x,b.y,b.z),r=Math.max(3.5,.14*p.s);
+    /* ombre : se resserre et fonce quand la balle descend */
+    var k=clamp(1-b.z/3.2,.15,1);
+    ctx.beginPath();ctx.ellipse(sh.x,sh.y,r*(1.6-k*.5),r*(.5-k*.12),0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,'+(.45*k)+')';ctx.fill();
+    /* traînée */
+    for(var i=0;i<trail.length;i++){var t=trail[i],a=(i+1)/trail.length;
+      ctx.beginPath();ctx.arc(t.x,t.y,t.r*a*.9,0,Math.PI*2);ctx.fillStyle='rgba(232,255,74,'+(a*.22)+')';ctx.fill();}
+    /* halo + balle */
+    var gl=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*4.5);gl.addColorStop(0,'rgba(232,255,74,.35)');gl.addColorStop(1,'rgba(232,255,74,0)');
+    ctx.fillStyle=gl;ctx.fillRect(p.x-r*4.5,p.y-r*4.5,r*9,r*9);
+    ctx.save();ctx.translate(p.x,p.y);ctx.scale(1+squash*.35,1-squash*.35);
+    var bg=ctx.createRadialGradient(-r*.35,-r*.4,r*.1,0,0,r);bg.addColorStop(0,'#F6FFB0');bg.addColorStop(.55,C.ball);bg.addColorStop(1,'#B9CC2A');
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();
+    if(r>5){ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=Math.max(1,r*.12);
+      ctx.beginPath();ctx.arc(-r*1.15,0,r*.95,-.75,.75);ctx.stroke();ctx.beginPath();ctx.arc(r*1.15,0,r*.95,Math.PI-.75,Math.PI+.75);ctx.stroke();}
+    ctx.restore();
+    trail.push({x:p.x,y:p.y,r:r});if(trail.length>9)trail.shift();
+  }
+
+  var squash=0;
+  function frame(now){
+    if(!running)return;
+    var dt=Math.min(.05,(now-(last||now))/1000);last=now;
+    if(!reduce){
+      st+=dt/segs[si].d;
+      while(st>=1){
+        var done=segs[si];st-=1;event(done.end,done.b);if(done.end!=='hit')squash=1;
+        si++;if(si>=segs.length){segs=shot(done.b);si=0;}
+      }
+    }
+    squash=Math.max(0,squash-dt*7);
+    var b=pos(segs[si],reduce?.5:st);
+    drawCourt();drawGlass(true);
+    if(b.y>=10){drawFx(dt);drawBall(b,squash);drawNet();}
+    else{drawNet();drawFx(dt);drawBall(b,squash);}
+    drawGlass(false);
+    if(!reduce&&visible)raf=requestAnimationFrame(frame);
+  }
+  function start(){cancelAnimationFrame(raf);last=0;raf=requestAnimationFrame(frame);}
+  size();addEventListener('resize',function(){size();if(reduce)start();});
+  new IntersectionObserver(function(es){visible=es[0].isIntersecting;if(visible&&running)start();}).observe(cv);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&running&&visible)start();});
+  start();
+  return{stop:function(){running=false;cancelAnimationFrame(raf);}};
+})();
+
+/* =============================================================
+   RÉSERVATION — démonstration 100 % côté client (localStorage)
+   À remplacer par Playtomic / BalleJaune / backend Stripe en prod.
+   ============================================================= */
+var Booking=(function(){
+  var root=$('#mroot'),B=$('#mB'),T=$('#mT'),S=$('#mS');
+  var f={dur:90,date:null,court:null,slot:null,pay:'online'};
+
+  function users(){return store('pn1_users')||[];}
+  function me(){var e=store('pn1_session');return users().filter(function(u){return u.email===e;})[0]||null;}
+  function bookings(){return store('pn1_bookings')||[];}
+  function h(s){var x=2166136261;for(var i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619);}return x>>>0;}
+  function busy(dateS,court,start){return h(dateS+'-'+court+'-'+start)%100<34;}
+  function price(d,date,start){var p=CONFIG.prices[d];return CONFIG.isPeak(date,start)?p.hp:p.hc;}
+
+  function open(){root.classList.add('open');root.setAttribute('aria-hidden','false');document.body.classList.add('lock');}
+  function close(){root.classList.remove('open');root.setAttribute('aria-hidden','true');document.body.classList.remove('lock');}
+  function head(t,s){T.textContent=t;S.textContent=s||'';$('.modal').scrollTop=0;}
+  function bar(n){var x='<div class="prog-bar">';for(var i=1;i<=3;i++)x+='<i class="'+(i<=n?'on':'')+'"></i>';return x+'</div>';}
+  function nav(){var u=me(),a=$('#acctBtn');if(u){a.classList.add('on');$('#acctAv').textContent=(u.name||u.email)[0].toUpperCase();$('#acctName').textContent=(u.name||'Mon compte').split(' ')[0];}else a.classList.remove('on');}
+
+  /* --- étape 1 : créneau --- */
+  function slots(){
+    if(!f.date){f.date=new Date();f.date.setHours(0,0,0,0);}
+    head('Réserver une piste','Étape 1 / 3 · Créneau');
+    var x=bar(1)+'<div class="lbl2">Durée</div><div class="chips">';
+    CONFIG.durations.forEach(function(d){var p=CONFIG.prices[d];
+      x+='<button class="chip'+(d===f.dur?' sel':'')+'" data-d="'+d+'">'+dur(d)+'<small>'+eur(p.hc)+' – '+eur(p.hp)+' / piste</small></button>';});
+    x+='</div><div class="lbl2">Date</div><div class="days">';
+    var base=new Date();base.setHours(0,0,0,0);
+    for(var i=0;i<21;i++){var d=new Date(base);d.setDate(base.getDate()+i);
+      x+='<button class="day'+(iso(d)===iso(f.date)?' sel':'')+'" data-iso="'+iso(d)+'"><div class="a">'+(i===0?'Auj.':DOW[d.getDay()])+'</div><div class="b">'+d.getDate()+'</div><div class="a">'+MON[d.getMonth()].replace('.','')+'</div></button>';}
+    x+='</div><div class="legend"><span>Prix par piste</span><span style="color:var(--bubble)">● heures pleines</span><span>Barré = réservé</span></div>';
+    var dS=iso(f.date),now=new Date(),today=iso(now)===dS,nowM=now.getHours()*60+now.getMinutes();
+    var mine=bookings().filter(function(b){return b.date===dS&&b.status==='ok';});
+    var list=f.court? CONFIG.courts.filter(function(c){return c.id===f.court;}) : CONFIG.courts;
+    if(f.court) x+='<div style="margin-top:14px;font-size:13px;color:var(--mute)">Piste '+f.court+' sélectionnée · <button class="switch" style="display:inline;margin:0;padding:0;border:none;background:none;color:var(--ball);text-decoration:underline;cursor:pointer" id="allCourts">voir toutes les pistes</button></div>';
+    list.forEach(function(c){
+      x+='<div class="ctr"><div class="ctr-h">Piste '+c.id+(c.type?'<small>'+esc(c.type)+'</small>':'')+'</div><div class="slots">';
+      for(var t=CONFIG.open;t+f.dur<=CONFIG.close;t+=30){
+        if(today&&t<nowM+15)continue;
+        var taken=busy(dS,c.id,t)||mine.some(function(b){return b.court===c.id&&t<b.end&&t+f.dur>b.start;});
+        var pk=CONFIG.isPeak(f.date,t);
+        x+='<button class="slot'+(pk?' pk':'')+'" '+(taken?'disabled':'data-c="'+c.id+'" data-t="'+t+'"')+'>'+hm(t)+'<small>'+(taken?'pris':eur(price(f.dur,f.date,t)))+'</small></button>';
+      }
+      x+='</div></div>';
+    });
+    B.innerHTML=x;
+    $$('.chip',B).forEach(function(b){b.onclick=function(){f.dur=+b.dataset.d;slots();};});
+    $$('.day',B).forEach(function(b){b.onclick=function(){f.date=fromIso(b.dataset.iso);slots();};});
+    var ac=$('#allCourts');if(ac)ac.onclick=function(){f.court=null;slots();};
+    $$('.slot:not(:disabled)',B).forEach(function(b){b.onclick=function(){f.slot={court:+b.dataset.c,start:+b.dataset.t,end:+b.dataset.t+f.dur};me()?confirm():auth('signup');};});
+    var sel=$('.day.sel',B);if(sel&&sel.scrollIntoView)sel.scrollIntoView({inline:'center',block:'nearest'});
+  }
+
+  /* --- étape 2 : compte --- */
+  function auth(mode){
+    head(mode==='signup'?'Créer un compte':'Connexion','Étape 2 / 3 · Compte');
+    var x=bar(2)+'<button class="gbtn" id="gb"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.5-2.1 14.3-5.6l-6.6-5.6C29.6 34.6 26.9 36 24 36c-5.2 0-9.6-3.3-11.2-7.9l-6.5 5C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.6 5.6C39.9 35.6 44 30.3 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>Continuer avec Google</button>';
+    x+='<div class="or">ou par email</div><form id="af" novalidate>';
+    if(mode==='signup')x+='<div class="field"><label>Prénom & nom</label><input id="an" autocomplete="name" placeholder="Camille Martin"></div><div class="field"><label>Téléphone</label><input id="ap" type="tel" autocomplete="tel" placeholder="06 12 34 56 78"></div>';
+    x+='<div class="field"><label>Email</label><input id="ae" type="email" autocomplete="email" placeholder="vous@email.fr"></div>';
+    x+='<div class="field"><label>Mot de passe</label><input id="aw" type="password" autocomplete="'+(mode==='signup'?'new-password':'current-password')+'" placeholder="6 caractères minimum"></div>';
+    x+='<div class="msg" id="am"></div><button class="btn btn-ball full" type="submit">'+(mode==='signup'?'Créer mon compte':'Se connecter')+'</button></form>';
+    x+='<div class="switch">'+(mode==='signup'?'Déjà un compte ? <button id="sw">Se connecter</button>':'Pas de compte ? <button id="sw">Créer un compte</button>')+'</div>';
+    B.innerHTML=x;
+    $('#sw').onclick=function(){auth(mode==='signup'?'login':'signup');};
+    $('#gb').onclick=function(){ /* démo : à remplacer par Google Identity Services */
+      var e='joueur.google@demo.fr',u=users();if(!u.some(function(z){return z.email===e;}))u.push({email:e,name:'Joueur Google',g:1});
+      store('pn1_users',u);store('pn1_session',e);done();};
+    $('#af').onsubmit=function(ev){ev.preventDefault();
+      var e=$('#ae').value.trim().toLowerCase(),w=$('#aw').value,m=$('#am'),u=users(),ex=u.filter(function(z){return z.email===e;})[0];
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e))return m.textContent='Adresse email invalide.';
+      if(w.length<6)return m.textContent='6 caractères minimum.';
+      if(mode==='signup'){if(ex)return m.textContent='Compte existant : connectez-vous.';
+        u.push({email:e,name:$('#an').value.trim()||e.split('@')[0],phone:$('#ap').value.trim(),pw:h(w)});store('pn1_users',u);}
+      else{if(!ex)return m.textContent='Aucun compte avec cet email.';if(ex.pw!==h(w))return m.textContent='Mot de passe incorrect.';}
+      store('pn1_session',e);done();};
+  }
+  function done(){nav();toast('Bienvenue '+(me().name||'').split(' ')[0]+' 👋');f.slot?confirm():account();}
+
+  /* --- étape 3 : confirmation --- */
+  function confirm(){
+    var p=price(f.dur,f.date,f.slot.start),pk=CONFIG.isPeak(f.date,f.slot.start);
+    head('Confirmer','Étape 3 / 3 · Paiement');
+    var x=bar(3)+'<button class="back" id="bk">← Changer de créneau</button>';
+    x+='<div class="recap"><div class="top"><b>Piste 0'+f.slot.court+'</b></div>'
+      +'<div class="row"><span>Date</span><span>'+longDate(f.date)+'</span></div>'
+      +'<div class="row"><span>Horaire</span><span>'+hm(f.slot.start)+' – '+hm(f.slot.end)+'</span></div>'
+      +'<div class="row"><span>Tarif</span><span>'+(pk?'Heures pleines':'Heures creuses')+'</span></div>'
+      +'<div class="row"><span>Soit par joueur</span><span>'+eur(p/4)+'</span></div>'
+      +'<div class="row tot"><span>Total piste</span><span>'+eur(p)+'</span></div></div>';
+    x+='<div class="lbl2">Paiement</div><div class="pay">'
+      +'<button class="po'+(f.pay==='online'?' sel':'')+'" data-p="online"><span class="r"></span><span><b>Payer en ligne · '+eur(p)+'</b><small>Piste réglée, rien à prévoir sur place.</small></span></button>'
+      +'<button class="po'+(f.pay==='split'?' sel':'')+'" data-p="split"><span class="r"></span><span><b>Payer ma part · '+eur(p/4)+'</b><small>Chaque joueur règle sa part (lien de partage).</small></span></button>'
+      +'<button class="po'+(f.pay==='onsite'?' sel':'')+'" data-p="onsite"><span class="r"></span><span><b>Payer à l\'accueil</b><small>Empreinte bancaire, débitée uniquement en cas d\'absence.</small></span></button></div>';
+    x+='<button class="btn btn-ball full" id="go" style="margin-top:18px">Confirmer la réservation</button>';
+    x+='<p class="note">Annulation gratuite jusqu\'à 24 h avant le créneau. Démonstration : aucun paiement réel n\'est effectué.</p>';
+    B.innerHTML=x;
+    $('#bk').onclick=slots;
+    $$('.po',B).forEach(function(b){b.onclick=function(){f.pay=b.dataset.p;$$('.po',B).forEach(function(z){z.classList.toggle('sel',z===b);});};});
+    $('#go').onclick=function(){
+      var all=bookings(),dS=iso(f.date);
+      var bk={id:'N1-'+Date.now().toString(36).toUpperCase().slice(-6),email:me().email,court:f.slot.court,date:dS,start:f.slot.start,end:f.slot.end,dur:f.dur,price:p,pay:f.pay,status:'ok'};
+      all.push(bk);store('pn1_bookings',all);success(bk);};
+  }
+  function success(bk){
+    head('C\'est réservé','Référence '+bk.id);
+    var share='Partie de padel chez Padel N One — '+longDate(fromIso(bk.date))+' à '+hm(bk.start)+', piste '+bk.court+'. '+eur(bk.price/4)+' par joueur. On joue ?';
+    B.innerHTML='<div class="done"><div class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6L9 17l-5-5"/></svg></div><h3>Piste 0'+bk.court+'<br>bloquée</h3><p>'+longDate(fromIso(bk.date))+' · '+hm(bk.start)+' – '+hm(bk.end)+'</p></div>'
+      +'<a class="btn btn-ball full" href="https://wa.me/?text='+encodeURIComponent(share)+'" target="_blank" rel="noopener">Inviter mes 3 partenaires</a>'
+      +'<div style="display:flex;gap:10px;margin-top:10px"><button class="btn btn-line full" id="ma">Mes réservations</button><button class="btn btn-line full" id="ag">Nouvelle partie</button></div>';
+    $('#ma').onclick=account;$('#ag').onclick=function(){f.slot=null;slots();};
+    toast('Réservation '+bk.id+' confirmée');
+  }
+
+  /* --- compte --- */
+  function account(){
+    var u=me();if(!u){f.slot=null;return auth('login');}
+    head('Mon compte',u.email);
+    var list=bookings().filter(function(b){return b.email===u.email;}).sort(function(a,b){return a.date===b.date?a.start-b.start:(a.date<b.date?-1:1);});
+    var x='<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap"><button class="btn btn-ball" id="nb">Réserver</button><button class="btn btn-line" id="lo">Déconnexion</button></div>';
+    if(!list.length)x+='<p style="color:var(--mute)">Aucune réservation pour le moment.</p>';
+    var now=Date.now();
+    list.forEach(function(b){
+      var d=fromIso(b.date);d.setMinutes(b.start);var past=d.getTime()<now,hrs=(d.getTime()-now)/36e5;
+      x+='<div class="bk"><div class="c">0'+b.court+'</div><div class="m"><b>'+longDate(fromIso(b.date))+' · '+hm(b.start)+' – '+hm(b.end)+'</b>'+dur(b.dur)+' · '+eur(b.price)+' · '+({online:'payé en ligne',split:'paiement partagé',onsite:'à régler sur place'})[b.pay]+'<br><small>Réf. '+b.id+'</small>'
+        +(b.status==='ok'&&!past?'<br><button class="cancel" data-id="'+b.id+'">'+(hrs>=24?'Annuler (gratuit)':'Annuler')+'</button>':'')+'</div>'
+        +'<span class="s2 '+(b.status==='ok'&&!past?'ok':'')+'">'+(b.status!=='ok'?'Annulée':past?'Jouée':'Confirmée')+'</span></div>';
+    });
+    B.innerHTML=x;
+    $('#nb').onclick=function(){f.slot=null;f.court=null;slots();};
+    $('#lo').onclick=function(){store('pn1_session','');nav();close();toast('Déconnecté');};
+    $$('.cancel',B).forEach(function(c){c.onclick=function(){
+      if(!window.confirm('Annuler cette réservation ?'))return;
+      var all=bookings();all.forEach(function(b){if(b.id===c.dataset.id)b.status='cx';});store('pn1_bookings',all);toast('Réservation annulée');account();};});
+  }
+
+  function legal(){
+    open();head('Mentions légales','');
+    B.innerHTML='<div class="legal-txt"><h4>Éditeur</h4>SAS Padel N One, capital social de 95 000 €.<br>Siège : 1 rue Eugène Freyssinet, 51470 Saint-Memmie.<br>SIREN : [à compléter] · RCS Châlons-en-Champagne.<br>Directeur de la publication : Franck Bazilio, Président.<br>Téléphone : '+CONFIG.phone+'.'
+      +'<h4>Hébergeur</h4>[À compléter : Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA 91789, USA — ou autre]'
+      +'<h4>Données personnelles</h4>Les données saisies lors de la réservation (nom, email, téléphone) servent uniquement à la gestion des réservations. Vous disposez d\'un droit d\'accès, de rectification et de suppression en écrivant au club.'
+      +'<h4>Cookies</h4>Ce site n\'utilise pas de cookies publicitaires. Le stockage local du navigateur sert uniquement à mémoriser votre session et vos réservations.</div>';
+  }
+
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.js-book');
+    if(b){e.preventDefault();f.slot=null;f.court=b.dataset.court?+b.dataset.court:null;open();slots();}
+  });
+  $('#acctBtn').onclick=function(){open();account();};
+  $('#footAcct').onclick=function(e){e.preventDefault();open();account();};
+  $$('[data-close]',root).forEach(function(el){el.onclick=close;});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  nav();
+  return {legal:legal};
+})();
+</script>
+</body>
+</html>
